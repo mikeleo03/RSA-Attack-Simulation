@@ -16,9 +16,9 @@ def convergents_of_cont_frac(fraction):
         if not convergents:
             convergents.append((i, 1))
         elif len(convergents) == 1:
-            convergents.append((i*convergents[0][0]+1, i))
+            convergents.append((i * convergents[0][0] + 1, i))
         else:
-            convergents.append((i*convergents[-1][0] + convergents[-2][0], i*convergents[-1][1] + convergents[-2][1]))
+            convergents.append((i * convergents[-1][0] + convergents[-2][0], i*convergents[-1][1] + convergents[-2][1]))
     return convergents
 
 # RSA Decryption 
@@ -27,18 +27,18 @@ def convergents_of_cont_frac(fraction):
 def decrypt_variant_a(ciphertext, n, e):
     factors = factorint(n)
     p, q = factors.keys()
-    d = pow(e, -1, (p-1)*(q-1))
+    d = inverse(e, (p - 1) * (q - 1))
     plaintext_int = pow(ciphertext, d, n)
     plaintext_bytes = long_to_bytes(plaintext_int)
     print("[*] Decryption successful with d =", d)
     return plaintext_bytes
 
 # Nilai N = p^k dengan k adalah bilangan asli
-# Jika N = p^k, maka Totient(N) = p^(k-1) * (p-1)
+# Jika N = p^k, maka Totient(N) = p^(k - 1) * (p - 1)
 def decrypt_variant_b(ciphertext, n, e):
     mp.dps = 1000
     p = int(mp.sqrt(n))
-    d = pow(e, -1, p*(p-1))
+    d = inverse(e, p * (p - 1))
     plaintext_int = pow(ciphertext, d, n)
     plaintext_bytes = long_to_bytes(plaintext_int)
     print("[*] Decryption successful with d =", d)
@@ -82,9 +82,14 @@ def decrypt_variant_d(ciphertext, n, e):
     print("[*] Decryption successful without knowing d value")
     return plaintext_bytes
     
-# Why?
-""" def decrypt_variant_e(ciphertext, n, e):
-    # TODO """
+# Hanya menggunakan 1 nilai prima N
+# Padahal Totient(N) untuk N bilangan prima adalah N - 1
+def decrypt_variant_e(ciphertext, n, e):
+    d = inverse(e, (n - 1))
+    plaintext_int = pow(ciphertext, d, n)
+    plaintext_bytes = long_to_bytes(plaintext_int)
+    print("[*] Decryption successful without knowing d value")
+    return plaintext_bytes
 
 # Main program
 if __name__ == "__main__":
@@ -93,5 +98,5 @@ if __name__ == "__main__":
     e = int(input("Enter the public exponent (e): "))
     
     # Ganti varian nya
-    plaintext = decrypt_variant_d(c, n, e)
+    plaintext = decrypt_variant_c(c, n, e)
     print(plaintext)

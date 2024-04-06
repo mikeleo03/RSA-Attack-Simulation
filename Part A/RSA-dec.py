@@ -1,7 +1,6 @@
 from sympy import factorint
 from Crypto.Util.number import *
 from mpmath import mp
-from fractions import Fraction
 
 # Fungsi bantuan untuk menghitung pecahan lanjutan dari e/n
 def continued_fraction(e, n):
@@ -31,7 +30,7 @@ def decrypt_variant_a(ciphertext, n, e):
     d = pow(e, -1, (p-1)*(q-1))
     plaintext_int = pow(ciphertext, d, n)
     plaintext_bytes = long_to_bytes(plaintext_int)
-    print("Decryption successful with d =", d)
+    print("[*] Decryption successful with d =", d)
     return plaintext_bytes
 
 # Nilai N = p^k dengan k adalah bilangan asli
@@ -42,7 +41,7 @@ def decrypt_variant_b(ciphertext, n, e):
     d = pow(e, -1, p*(p-1))
     plaintext_int = pow(ciphertext, d, n)
     plaintext_bytes = long_to_bytes(plaintext_int)
-    print("Decryption successful with d =", d)
+    print("[*] Decryption successful with d =", d)
     return plaintext_bytes
 
 # Nilai d yang sangat besar dan terbatas membuat konsekuensi nilai e kecil
@@ -63,22 +62,28 @@ def decrypt_variant_c(ciphertext, n, e):
             
             # Jika hasil dekripsi mengikuti pola KRIPTOGRAFIITB{secret}, maka itu jawabannya
             if plaintext_bytes.startswith(b'KRIPTOGRAFIITB{'):
-                print("Decryption successful with d =", d)
+                print("[*] Decryption successful with d =", d)
                 return plaintext_bytes
             
         except Exception as e:
-            print("Error with d =", d, "Error:", e)
+            print("[*] Error with d =", d, "Error:", e)
             continue
     
     # Jika tidak ada yang valid, return None
     return None
 
-# Why?
-""" def decrypt_variant_d(ciphertext, n, e):
-    # TODO
+# Nilai e diketahui dan sangat kecil, e = 3
+# Tidak aman dengan Coppersmith's attack
+def decrypt_variant_d(ciphertext, n, e):
+    mp.dps = 1000
+    # Nilai e diketahui = 3, cukup hitung akar pangkat 3 nya
+    plaintext_int = int(mp.cbrt(ciphertext))
+    plaintext_bytes = long_to_bytes(plaintext_int)
+    print("[*] Decryption successful without knowing d value")
+    return plaintext_bytes
     
 # Why?
-def decrypt_variant_e(ciphertext, n, e):
+""" def decrypt_variant_e(ciphertext, n, e):
     # TODO """
 
 # Main program
@@ -88,5 +93,5 @@ if __name__ == "__main__":
     e = int(input("Enter the public exponent (e): "))
     
     # Ganti varian nya
-    plaintext = decrypt_variant_c(c, n, e)
+    plaintext = decrypt_variant_d(c, n, e)
     print(plaintext)
